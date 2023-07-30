@@ -6,6 +6,24 @@
 //6. give the user their winning
 //7. play again
 const prompt = require("prompt-sync")();
+// global variable
+const ROWS = 3;
+const COLS = 3;
+
+//specifies how many times each symbol should appear on the slot machine reels.
+const SYMBOLS_COUNT = {
+  A: 2,
+  B: 4,
+  C: 6,
+  D: 8,
+};
+//multiply each symbols
+const SYMBOLS_values = {
+  A: 5,
+  B: 4,
+  C: 3,
+  D: 2,
+};
 
 const deposit = () => {
   while (true) {
@@ -45,6 +63,37 @@ const getBet = (balance, lines) => {
     }
   }
 };
+
+const spin = () => {
+  const symbols = [];
+  for (const [symbol, count] of Object.entries(SYMBOLS_COUNT)) {
+    for (let i = 0; i < count; i++) {
+      // This nested loop adds 'count' number of the current 'symbol' to the 'symbols' array.
+      symbols.push(symbol);
+    }
+  }
+
+  const reels = [[], [], []]; //array of arrays representing the slot machine reels.
+  //iterates through the columns of the reels (3 columns in this case)
+  for (let i = 0; i < COLS; i++) {
+    // Create a copy of the 'symbols' array for each reel to ensure each reel starts with the same set of symbols.
+    const reelSymbols = [...symbols];
+    //iterates through the rows of the current reel
+    for (let j = 0; j < ROWS; j++) {
+      // Generate a random index within the range of the current 'reelSymbols' array.
+      const randomIndex = Math.floor(Math.random() * reelSymbols.length);
+
+      const selectedSymbol = reelSymbols[randomIndex]; // Retrieve the symbol at the randomly selected index.
+      reels[i].push(selectedSymbol); // Add the selected symbol to the current reel
+
+      reelSymbols.splice(randomIndex, 1); // Remove the selected symbol from 'reelSymbols' to avoid duplicates in the same reel.
+    }
+  }
+  return reels; //reels' array as the result of the 'spin' function
+};
+
+const reels = spin();
+console.log(reels);
 
 let balance = deposit();
 const numberOfLines = getNumberOfLines();
