@@ -73,9 +73,10 @@ const spin = () => {
     }
   }
 
-  const reels = [[], [], []]; //array of arrays representing the slot machine reels.
+  const reels = [];
   //iterates through the columns of the reels (3 columns in this case)
   for (let i = 0; i < COLS; i++) {
+    reels.push([]); //add nest array
     // Create a copy of the 'symbols' array for each reel to ensure each reel starts with the same set of symbols.
     const reelSymbols = [...symbols];
     //iterates through the rows of the current reel
@@ -92,9 +93,35 @@ const spin = () => {
   return reels; //reels' array as the result of the 'spin' function
 };
 
-const reels = spin();
-console.log(reels);
+// takes 'reels' as its input and  switching its rows and columns.
+const transpose = (reels) => {
+  const rows = [];
+  for (let i = 0; i < ROWS; i++) {
+    rows.push([]); // populate each row with transposed elements later.
+    //iterates through the columns of the original 'reels'
+    for (let j = 0; j < COLS; j++) {
+      rows[i].push(reels[j][i]);
+    }
+  }
+  return rows;
+};
+//display slot machine
+const printRows = (rows) => {
+  for (const row of rows) {
+    let rowString = "";
+    for (const [i, symbol] of row.entries()) {
+      rowString += symbol;
+      if (i != row.length - 1) {
+        rowString += " | ";
+      }
+    }
+    console.log(rowString);
+  }
+};
 
 let balance = deposit();
 const numberOfLines = getNumberOfLines();
 const bet = getBet(balance, numberOfLines); //can bet base on your balance
+const reels = spin();
+const rows = transpose(reels);
+printRows(rows);
