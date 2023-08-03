@@ -18,7 +18,7 @@ const SYMBOLS_COUNT = {
   D: 8,
 };
 //multiply each symbols
-const SYMBOLS_values = {
+const SYMBOLS_VALUES = {
   A: 5,
   B: 4,
   C: 3,
@@ -90,7 +90,7 @@ const spin = () => {
       reelSymbols.splice(randomIndex, 1); // Remove the selected symbol from 'reelSymbols' to avoid duplicates in the same reel.
     }
   }
-  return reels; //reels' array as the result of the 'spin' function
+  return reels; // result of the 'spin' function
 };
 
 // takes 'reels' as its input and  switching its rows and columns.
@@ -108,9 +108,11 @@ const transpose = (reels) => {
 //display slot machine
 const printRows = (rows) => {
   for (const row of rows) {
-    let rowString = "";
+    let rowString = ""; // for build the output for each row
     for (const [i, symbol] of row.entries()) {
       rowString += symbol;
+
+      // If not at the last element of the 'row', add a separator (" | ") to the 'rowString'.
       if (i != row.length - 1) {
         rowString += " | ";
       }
@@ -119,9 +121,86 @@ const printRows = (rows) => {
   }
 };
 
-let balance = deposit();
-const numberOfLines = getNumberOfLines();
-const bet = getBet(balance, numberOfLines); //can bet base on your balance
-const reels = spin();
-const rows = transpose(reels);
-printRows(rows);
+//calculate the total winning amount based on the spin result
+const getWinning = (rows, bet, lines) => {
+  let winning = 0;
+  let anyLineWin = false; // Flag to track if any line wins occur
+
+  // Check if all symbols in the row are the same
+  for (let row = 0; row < lines; row++) {
+    const symbols = rows[row];
+    let allSame = true;
+
+    for (const symbol of symbols) {
+      if (symbol != symbols[0]) {
+        allSame = false;
+        break;
+      }
+    }
+
+    if (allSame) {
+      // Calculate winning amount based on the bet and symbol value
+      winning += bet * SYMBOLS_VALUES[symbols[0]];
+      anyLineWin = true; // Set the flag to true if any line wins occur
+    }
+  }
+
+  if (!anyLineWin) {
+    console.log("You lost!"); // Display "You lost!" if no line wins occur
+  }
+
+  return winning;
+};
+
+const game = () => {
+  let balance = deposit(); // Initialize player's balance from the deposit function
+
+  // Main game loop
+  while (true) {
+    console.log(`You have a balance of $${balance}`);
+
+    // Get the number of lines to play
+    const numberOfLines = getNumberOfLines();
+
+    // Get the bet amount based on the balance and number of lines
+    const bet = getBet(balance, numberOfLines);
+
+    // Deduct the bet amount from the balance
+    balance -= bet * numberOfLines;
+
+    // Spin the slot machine reels and get the result
+    const reels = spin();
+
+    // Transpose the reel results to get rows
+    const rows = transpose(reels);
+
+    // Display the visual representation of the spin result
+    printRows(rows);
+
+    // Calculate the winning amount based on the spin result
+    const winnings = getWinning(rows, bet, numberOfLines);
+
+    // Add the winnings to the player's balance
+    balance += winnings;
+
+    // Display the winning amount and updated balance
+    console.log(`You get $ ${winnings.toString()}`);
+    console.log(`Your balance is $ ${balance}`);
+
+    // Check if the player's balance is depleted
+    if (balance <= 0) {
+      console.log("You ran out of money!");
+      break; // Exit the game loop
+    }
+
+    // Ask the player if they want to play again
+    const playAgain = prompt("Do you want to play again? (y/n)");
+
+    // If the player chooses not to play again, exit the game loop
+    if (playAgain != "y") {
+      break;
+    }
+  }
+};
+
+game();
